@@ -3,3 +3,4 @@ pyrebase4
 xhtml2pdf
 Pillow
 Whitenoise
+setuptools
