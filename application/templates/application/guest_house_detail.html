@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static dict_extras %}
 
 {% block title %}{{ guest_house.name }} | KSO Guesthouse{% endblock %}
 
@@ -71,13 +71,15 @@
       <div class="room-card">
         <div style="display:flex;align-items:center;gap:1rem;justify-content:space-between;">
           <div style="font-size:1.2rem;font-weight:700;">Room {{ room.room_number }}</div>
-          <span class="room-status-label" style="font-size:1rem;font-weight:600;{% if room_status_map.room.id == 'Booked' %}color:#d7263d;{% else %}color:#2e7d32;{% endif %}">
-            {% if room_status_map|default:{}|dictsort:room.id == 'Booked' %}
-              <i class="fa-solid fa-calendar-check"></i> Booked
-            {% else %}
-              <i class="fa-solid fa-bed"></i> Available
-            {% endif %}
-          </span>
+          {% with status=room_status_map|dict_get:room.id %}
+            <span class="room-status-label" style="font-size:1rem;font-weight:600;{% if status == 'Booked' %}color:#d7263d;{% else %}color:#2e7d32;{% endif %}">
+              {% if status == 'Booked' %}
+                <i class="fa-solid fa-calendar-check"></i> Booked
+              {% else %}
+                <i class="fa-solid fa-bed"></i> Available
+              {% endif %}
+            </span>
+          {% endwith %}
         </div>
         <div style="margin:0.5rem 0 0.7rem 0;color:#666;font-size:0.98rem;">Type: {{ room.get_room_type_display }}</div>
         <div style="margin-bottom:0.7rem;color:#232946;font-size:0.98rem;">Beds: {{ room.number_of_beds }}</div>
@@ -92,12 +94,84 @@
             {% endfor %}
           </ul>
         </div>
-        <a href="#" class="btn btn-primary" style="background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;font-weight:700;padding:0.6rem 1.2rem;border:none;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px #7f53ac22;cursor:pointer;display:inline-block;">Book Now</a>
+        {% with status=room_status_map|dict_get:room.id %}
+          {% if status != 'Booked' %}
+            <a href="#" class="btn btn-primary book-now-btn"
+               data-room-id="{{ room.id }}"
+               data-room-number="{{ room.room_number }}"
+               data-room-type="{{ room.get_room_type_display }}"
+               data-room-beds="{{ room.number_of_beds }}"
+               data-room-price="{{ room.price_per_night }}"
+               style="background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;font-weight:700;padding:0.6rem 1.2rem;border:none;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px #7f53ac22;cursor:pointer;display:inline-block;">Book Now</a>
+          {% endif %}
+        {% endwith %}
       </div>
       {% empty %}
       <div style="grid-column: 1/-1; text-align:center; color:#888; font-size:1.2rem;">No rooms available in this guest house.</div>
       {% endfor %}
     </div>
+  </div>
+</div>
+
+<!-- Booking Modal -->
+<div id="booking-modal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.4);z-index:9999;align-items:center;justify-content:center;">
+  <div class="booking-modal-content">
+    <button id="close-booking-modal" class="close-modal-btn">&times;</button>
+    <h3 class="underline" style="margin-bottom:1.2rem;text-align:center;">Book Room <span id="modal-room-number"></span></h3>
+    <form id="booking-form" enctype="multipart/form-data" autocomplete="off">
+      {% csrf_token %}
+      <input type="hidden" name="room_id" id="modal-room-id">
+      <div class="modal-row"><label>Room Type:</label> <span id="modal-room-type"></span></div>
+      <div class="modal-row"><label>Beds:</label> <span id="modal-room-beds"></span></div>
+      <div class="modal-row"><label>Price per Night:</label> ₹<span id="modal-room-price"></span></div>
+      <div class="modal-row">
+        <label>Check-in Date:</label>
+        <input type="date" name="check_in" required class="modal-input">
+      </div>
+      <div class="modal-row">
+        <label>Check-out Date:</label>
+        <input type="date" name="check_out" required class="modal-input">
+      </div>
+      <div class="modal-row">
+        <label>Number of Guests:</label>
+        <input type="number" name="number_of_guests" min="1" required class="modal-input">
+      </div>
+      <div class="modal-row">
+        <label>Special Requests:</label>
+        <textarea name="special_requests" class="modal-input"></textarea>
+      </div>
+      <div class="modal-row">
+        <label>Address:</label>
+        <input type="text" name="address" class="modal-input">
+      </div>
+      <div class="modal-row">
+        <label>Children Count:</label>
+        <input type="number" name="children_count" min="0" class="modal-input">
+      </div>
+      <div class="modal-row">
+        <label>Proof Document:</label>
+        <input type="file" name="proof_document" class="modal-input-file">
+      </div>
+      <div class="modal-row">
+        <label>Food Times:</label>
+        <input type="number" name="food_times" min="0" class="modal-input">
+      </div>
+      <div class="modal-row">
+        <label>Guest Type:</label>
+        <select name="guest_type" class="modal-input">
+          <option value="">Select</option>
+          <option value="personal">Personal</option>
+          <option value="guest">Guest</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="modal-row">
+        <label>Total Price:</label> <span style="font-weight:600;color:#7f53ac;">₹<span id="modal-total-price">0</span></span>
+      </div>
+      <button type="submit" class="modal-submit-btn">Confirm Booking</button>
+    </form>
+    <div id="booking-success" class="modal-success">Booking successful!</div>
+    <div id="booking-error" class="modal-error">Booking failed. Please try again.</div>
   </div>
 </div>
 
@@ -186,11 +260,168 @@
 .room-status-table th, .room-status-table td {
   padding: 0.9rem 1.2rem;
 }
+.booking-modal-content {
+  background: #fff;
+  padding: 2.2rem 2.2rem 1.5rem 2.2rem;
+  border-radius: 18px;
+  max-width: 420px;
+  width: 95vw;
+  position: relative;
+  box-shadow: 0 8px 32px 0 rgba(127,83,172,0.18),0 0 15px 0 rgba(100,125,222,0.10);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  animation: popIn 0.5s cubic-bezier(.68,-0.55,.27,1.55);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.close-modal-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #7f53ac;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.close-modal-btn:hover {
+  color: #d7263d;
+}
+.modal-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.modal-row label {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #232946;
+}
+.modal-input, .modal-input-file, .modal-row textarea, .modal-row select {
+  border: 1.5px solid #7f53ac33;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  background: #f8fafc;
+  color: #232946;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  margin-top: 0.1rem;
+}
+.modal-input:focus, .modal-row textarea:focus, .modal-row select:focus {
+  border: 1.5px solid #7f53ac;
+  box-shadow: 0 0 0 2px #7f53ac22;
+}
+.modal-input-file {
+  padding: 0.4rem 0.5rem;
+  background: #f8fafc;
+}
+.modal-submit-btn {
+  width: 100%;
+  background: linear-gradient(90deg,#7f53ac,#647dee);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.9rem 0;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 8px #7f53ac22;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.18s;
+  margin-top: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+}
+.modal-submit-btn:hover {
+  background: linear-gradient(90deg,#647dee,#7f53ac);
+  transform: scale(1.04);
+}
+.modal-success {
+  display: none;
+  color: #2e7d32;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 600;
+}
+.modal-error {
+  display: none;
+  color: #d7263d;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 600;
+}
+@media (max-width: 600px) {
+  .booking-modal-content {
+    padding: 1.2rem 0.7rem 1rem 0.7rem;
+    max-width: 99vw;
+  }
+}
 </style>
 <script>
 document.getElementById('toggle-today-reserved').onclick = function() {
   var section = document.getElementById('today-reserved-section');
   section.style.display = (section.style.display === 'none' || section.style.display === '') ? 'block' : 'none';
+};
+
+function calculateTotalPrice() {
+  const price = parseFloat(document.getElementById('modal-room-price').textContent) || 0;
+  const checkIn = document.querySelector('#booking-form [name=check_in]').value;
+  const checkOut = document.querySelector('#booking-form [name=check_out]').value;
+  if (checkIn && checkOut) {
+    const d1 = new Date(checkIn);
+    const d2 = new Date(checkOut);
+    const nights = (d2 - d1) / (1000*60*60*24);
+    document.getElementById('modal-total-price').textContent = nights > 0 ? (nights * price).toFixed(2) : '0';
+  } else {
+    document.getElementById('modal-total-price').textContent = '0';
+  }
+}
+document.querySelectorAll('.book-now-btn').forEach(btn => {
+  btn.onclick = function(e) {
+    e.preventDefault();
+    document.getElementById('booking-modal').style.display = 'flex';
+    document.getElementById('modal-room-id').value = this.dataset.roomId;
+    document.getElementById('modal-room-number').textContent = this.dataset.roomNumber;
+    document.getElementById('modal-room-type').textContent = this.dataset.roomType;
+    document.getElementById('modal-room-beds').textContent = this.dataset.roomBeds;
+    document.getElementById('modal-room-price').textContent = this.dataset.roomPrice;
+    document.getElementById('booking-success').style.display = 'none';
+    document.getElementById('booking-error').style.display = 'none';
+    document.querySelector('#booking-form [name=check_in]').value = '';
+    document.querySelector('#booking-form [name=check_out]').value = '';
+    document.getElementById('modal-total-price').textContent = '0';
+  };
+});
+document.getElementById('close-booking-modal').onclick = function() {
+  document.getElementById('booking-modal').style.display = 'none';
+};
+document.querySelector('#booking-form [name=check_in]').onchange = calculateTotalPrice;
+document.querySelector('#booking-form [name=check_out]').onchange = calculateTotalPrice;
+document.getElementById('booking-form').onsubmit = async function(e) {
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+  const resp = await fetch("{% url 'book_room' %}", {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrfToken
+    },
+    body: formData
+  });
+  const result = await resp.json();
+  if (result.success) {
+    document.getElementById('booking-success').style.display = 'block';
+    document.getElementById('booking-error').style.display = 'none';
+    setTimeout(() => window.location.reload(), 1200);
+  } else {
+    document.getElementById('booking-success').style.display = 'none';
+    document.getElementById('booking-error').style.display = 'block';
+  }
 };
 </script>
 {% endblock %} 
