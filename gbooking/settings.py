@@ -17,7 +17,6 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Application definition
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -130,3 +129,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Redirect unauthenticated users to the custom login page
 LOGIN_URL = '/auth/login/'
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
