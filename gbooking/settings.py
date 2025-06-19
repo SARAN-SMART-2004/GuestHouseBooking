@@ -14,9 +14,10 @@ SECRET_KEY = "django-insecure-h1=w#g03f^@+_=zmu0@-q9z!&d)))++k)6ygp-2#d@h$m$_utm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -129,3 +130,4 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Redirect unauthenticated users to the custom login page
 LOGIN_URL = '/auth/login/'
+MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
