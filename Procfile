@@ -1,0 +1,1 @@
+web: gunicorn gbooking.wsgi
