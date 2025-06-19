@@ -4,3 +4,4 @@ xhtml2pdf
 Pillow
 Whitenoise
 setuptools
+gunicorn
