@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Edit Rooms | KSO Guesthouse{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 700px; margin: 2.5rem auto;">
+    <h2 class="text-center underline mb-2">Edit Rooms</h2>
+    <div class="edit-list">
+        {% for room in rooms %}
+        <div class="edit-list-item">
+            <div class="edit-list-info">
+                <i class="fa-solid fa-bed"></i>
+                <div>
+                    <div class="edit-list-title">Room {{ room.room_number }} - {{ room.guest_house.name }}</div>
+                    <div class="edit-list-desc">{{ room.room_type }} | Beds: {{ room.number_of_beds }}</div>
+                </div>
+            </div>
+            <a href="{% url 'edit_room' room.id %}" class="edit-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></a>
+        </div>
+        {% empty %}
+        <div class="text-center">No rooms found.</div>
+        {% endfor %}
+    </div>
+</div>
+<style>
+.edit-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+.edit-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8f6ff;
+    border-radius: 14px;
+    box-shadow: 0 2px 12px #7f53ac18;
+    padding: 1.1rem 1.5rem;
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+.edit-list-item:hover {
+    box-shadow: 0 6px 24px #7f53ac33;
+    transform: scale(1.02);
+}
+.edit-list-info {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+}
+.edit-list-info i {
+    font-size: 2rem;
+    color: #7f53ac;
+    opacity: 0.8;
+}
+.edit-list-title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: #232946;
+}
+.edit-list-desc {
+    font-size: 0.98rem;
+    color: #647dee;
+    opacity: 0.85;
+}
+.edit-btn {
+    background: linear-gradient(90deg,#7f53ac,#647dee);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.18s;
+    box-shadow: 0 2px 8px #7f53ac22;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+.edit-btn:hover {
+    background: linear-gradient(90deg,#647dee,#7f53ac);
+    color: #ffe53b;
+    transform: scale(1.08);
+}
+</style>
+{% endblock %} 

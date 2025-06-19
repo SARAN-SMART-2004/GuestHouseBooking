@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block title %}Edit Guesthouse | KSO Guesthouse{% endblock %}
+{% block content %}
+<div class="container add-form-container">
+    <div class="form-card animate-pop">
+        <div class="form-header">
+            <i class="fa-solid fa-hotel"></i>
+            <h2 class="underline">Edit Guesthouse</h2>
+        </div>
+        <form method="post" enctype="multipart/form-data" autocomplete="off">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div class="form-group">
+                    <label>{{ field.label_tag }}</label>
+                    <div class="input-icon-group">
+                        {% if field.name == 'name' %}<i class="fa-solid fa-signature"></i>{% endif %}
+                        {% if field.name == 'description' %}<i class="fa-solid fa-align-left"></i>{% endif %}
+                        {% if field.name == 'image' %}<i class="fa-solid fa-image"></i>{% endif %}
+                        {% if field.name == 'address' %}<i class="fa-solid fa-location-dot"></i>{% endif %}
+                        {% if field.name == 'contact_number' %}<i class="fa-solid fa-phone"></i>{% endif %}
+                        {% if field.name == 'email' %}<i class="fa-solid fa-envelope"></i>{% endif %}
+                        {{ field }}
+                    </div>
+                    {% if field.errors %}<div class="form-error">{{ field.errors }}</div>{% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="form-btn"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+        </form>
+    </div>
+</div>
+<style>
+.add-form-container {
+    max-width: 600px;
+    margin: 3rem auto;
+}
+.form-card {
+    background: rgba(255,255,255,0.97);
+    border-radius: 22px;
+    box-shadow: 0 8px 32px 0 rgba(127, 83, 172, 0.18), 0 0 15px 0 rgba(100, 125, 222, 0.10);
+    padding: 2.5rem 2rem 2rem 2rem;
+    animation: popIn 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+}
+@keyframes popIn {
+    0% { transform: scale(0.85) translateY(40px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.form-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+.form-header i {
+    font-size: 2.5rem;
+    color: #7f53ac;
+    margin-bottom: 0.5rem;
+    animation: bounce 1.2s infinite alternate;
+}
+@keyframes bounce {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-8px); }
+}
+.form-group {
+    margin-bottom: 1.5rem;
+}
+.input-icon-group {
+    display: flex;
+    align-items: center;
+    background: #f3f0fa;
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    border: 1.5px solid #7f53ac33;
+    transition: border 0.2s;
+}
+.input-icon-group:focus-within {
+    border: 1.5px solid #7f53ac;
+    box-shadow: 0 0 0 2px #7f53ac22;
+}
+.input-icon-group i {
+    margin-right: 0.7rem;
+    color: #7f53ac;
+    font-size: 1.1rem;
+    opacity: 0.8;
+}
+.input-icon-group input,
+.input-icon-group textarea,
+.input-icon-group select {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 1.08rem;
+    padding: 0.6rem 0;
+    color: #232946;
+}
+.form-error {
+    color: #d7263d;
+    font-size: 0.97rem;
+    margin-top: 0.3rem;
+}
+.form-btn {
+    width: 100%;
+    background: linear-gradient(90deg,#7f53ac,#647dee);
+    color: #fff;
+    font-weight: 700;
+    padding: 0.9rem 0;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px #7f53ac22;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.18s;
+    margin-top: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.7rem;
+}
+.form-btn:hover {
+    background: linear-gradient(90deg,#647dee,#7f53ac);
+    transform: scale(1.04);
+}
+</style>
+{% endblock %} 
+ 

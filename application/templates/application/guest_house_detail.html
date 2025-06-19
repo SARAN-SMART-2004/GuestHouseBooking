@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ guest_house.name }} | KSO Guesthouse{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 1050px; margin: 2.5rem auto;">
+  <div style="background:rgba(255,255,255,0.97);border-radius:22px;box-shadow:0 8px 32px 0 rgba(127,83,172,0.18),0 0 15px 0 rgba(100,125,222,0.10);padding:2.5rem 2rem 2rem 2rem;">
+    <div style="display:flex;flex-wrap:wrap;gap:2.5rem;align-items:center;justify-content:center;">
+      <img src="{{ guest_house.image.url }}" alt="{{ guest_house.name }}" style="width:100%;max-width:370px;height:260px;object-fit:cover;border-radius:18px;box-shadow:0 2px 12px #7f53ac22;flex:1 1 320px;">
+      <div style="flex:2 1 320px;min-width:260px;">
+        <h1 class="underline" style="margin-top:0;margin-bottom:1.2rem;">{{ guest_house.name }}</h1>
+        <p style="font-size:1.15rem;color:#232946;margin:0 0 0.5rem 0;"><i class="fa-solid fa-location-dot"></i> {{ guest_house.address }}</p>
+        <p style="color:#666;font-size:1.05rem;margin-bottom:1.2rem;">{{ guest_house.description }}</p>
+        <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:1.2rem;">
+          <span style="font-weight:600;"><i class="fa-solid fa-phone"></i> {{ guest_house.contact_number }}</span>
+          <span style="font-weight:600;"><i class="fa-solid fa-envelope"></i> {{ guest_house.email }}</span>
+        </div>
+        <div class="stats-row" style="display:flex;gap:1.5rem;margin-bottom:1.2rem;flex-wrap:wrap;">
+          <div class="stat-card"><i class="fa-solid fa-door-open"></i> Total Rooms: <b>{{ total_rooms }}</b></div>
+          <div class="stat-card" style="color:#2e7d32;"><i class="fa-solid fa-bed"></i> Available: <b>{{ available_rooms_count }}</b></div>
+          <div class="stat-card" style="color:#d7263d;"><i class="fa-solid fa-calendar-check"></i> Booked: <b>{{ booked_rooms_count }}</b></div>
+        </div>
+        <button id="toggle-today-reserved" class="room-status-btn"><i class="fa-solid fa-calendar-check"></i> Today Reserved Rooms</button>
+      </div>
+    </div>
+    <div id="today-reserved-section" class="room-status-section" style="display:none; margin-top:2rem;">
+      <h3 class="underline" style="margin-bottom:1.2rem;">Today's Reserved Rooms</h3>
+      <div class="room-status-table-wrapper">
+        <table class="room-status-table">
+          <thead>
+            <tr>
+              <th>Room</th>
+              <th>Guest</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in booked_rooms %}
+            <tr>
+              <td>{{ booking.room.room_number }}</td>
+              <td>{{ booking.user.get_full_name|default:booking.user.username }}</td>
+              <td><span class="status-occupied">Reserved</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="3" class="text-center">No rooms reserved today.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="availability-section" style="background:linear-gradient(135deg,#f8fafc 0%,#e0c3fc 100%);padding:2rem 1.5rem;border-radius:18px;margin:2.5rem 0 1.5rem 0;box-shadow:0 2px 12px #7f53ac11;">
+      <h2 class="text-center underline mb-2">Check Room Availability</h2>
+      <form id="availability-form" style="display:flex;flex-wrap:wrap;gap:1.5rem;justify-content:center;align-items:end;">
+        <div>
+          <label for="check-in" style="font-weight:600;">Check-in Date:</label><br>
+          <input type="date" id="check-in" name="check-in" required style="padding:0.7rem 1rem;border-radius:8px;border:1.5px solid #7f53ac33;font-size:1rem;">
+        </div>
+        <div>
+          <label for="check-out" style="font-weight:600;">Check-out Date:</label><br>
+          <input type="date" id="check-out" name="check-out" required style="padding:0.7rem 1rem;border-radius:8px;border:1.5px solid #7f53ac33;font-size:1rem;">
+        </div>
+        <button type="submit" style="background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;font-weight:700;padding:0.9rem 2.2rem;border:none;border-radius:8px;font-size:1.1rem;box-shadow:0 2px 8px #7f53ac22;cursor:pointer;transition:background 0.2s;">Check Availability</button>
+      </form>
+      <noscript><div style="color:#d7263d;text-align:center;margin-top:1rem;">JavaScript is required to check room availability.</div></noscript>
+      <div id="available-rooms" class="row" style="margin-top:1.5rem;"></div>
+    </div>
+    <h2 class="underline text-center mb-2" style="margin-top:2.5rem;">Rooms in {{ guest_house.name }}</h2>
+    <div class="room-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:1.5rem;">
+      {% for room in rooms %}
+      <div class="room-card">
+        <div style="display:flex;align-items:center;gap:1rem;justify-content:space-between;">
+          <div style="font-size:1.2rem;font-weight:700;">Room {{ room.room_number }}</div>
+          <span class="room-status-label" style="font-size:1rem;font-weight:600;{% if room_status_map.room.id == 'Booked' %}color:#d7263d;{% else %}color:#2e7d32;{% endif %}">
+            {% if room_status_map|default:{}|dictsort:room.id == 'Booked' %}
+              <i class="fa-solid fa-calendar-check"></i> Booked
+            {% else %}
+              <i class="fa-solid fa-bed"></i> Available
+            {% endif %}
+          </span>
+        </div>
+        <div style="margin:0.5rem 0 0.7rem 0;color:#666;font-size:0.98rem;">Type: {{ room.get_room_type_display }}</div>
+        <div style="margin-bottom:0.7rem;color:#232946;font-size:0.98rem;">Beds: {{ room.number_of_beds }}</div>
+        <div style="margin-bottom:0.7rem;color:#232946;font-size:0.98rem;">Price: ₹{{ room.price_per_night }}</div>
+        <div style="margin-bottom:0.7rem;">
+          <span style="font-weight:600;">Amenities:</span>
+          <ul class="amenities-list">
+            {% for key, value in room.amenities.items %}
+              <li>{{ key|capfirst }}{% if value %}: {{ value }}{% endif %}</li>
+            {% empty %}
+              <li>No amenities listed.</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <a href="#" class="btn btn-primary" style="background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;font-weight:700;padding:0.6rem 1.2rem;border:none;border-radius:8px;font-size:1rem;box-shadow:0 2px 8px #7f53ac22;cursor:pointer;display:inline-block;">Book Now</a>
+      </div>
+      {% empty %}
+      <div style="grid-column: 1/-1; text-align:center; color:#888; font-size:1.2rem;">No rooms available in this guest house.</div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<style>
+.stat-card {
+  background: linear-gradient(90deg,#e0c3fc,#f8fafc);
+  border-radius: 10px;
+  padding: 0.7rem 1.2rem;
+  font-size: 1.08rem;
+  font-weight: 600;
+  box-shadow: 0 1px 4px #7f53ac11;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.room-card {
+  border: 1.5px solid #7f53ac33;
+  border-radius: 18px;
+  padding: 1.2rem 1.5rem;
+  margin-bottom: 1.5rem;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 2px 12px #7f53ac11;
+  transition: box-shadow 0.3s, transform 0.3s;
+}
+.room-card:hover {
+  box-shadow: 0 8px 24px #7f53ac22;
+  transform: scale(1.03);
+}
+.amenities-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
+.amenities-list li {
+  display: inline-block;
+  background: linear-gradient(90deg,#e0c3fc,#f8fafc);
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.97rem;
+  color: #232946;
+  font-weight: 600;
+  box-shadow: 0 1px 4px #7f53ac11;
+}
+@media (max-width: 900px) {
+  .container[style] {
+    max-width: 98vw !important;
+    padding: 0 0.5rem;
+  }
+  .room-card {
+    padding: 1rem 0.5rem;
+  }
+}
+.room-status-btn {
+  background: linear-gradient(90deg,#7f53ac,#647dee);
+  color: #fff;
+  font-weight: 700;
+  padding: 0.7rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.08rem;
+  box-shadow: 0 2px 8px #7f53ac22;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.18s;
+  margin-top: 0.7rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.room-status-btn:hover {
+  background: linear-gradient(90deg,#647dee,#7f53ac);
+  transform: scale(1.04);
+}
+.room-status-table-wrapper {
+  overflow-x: auto;
+}
+.room-status-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #7f53ac11;
+  margin-bottom: 1.5rem;
+}
+.room-status-table th, .room-status-table td {
+  padding: 0.9rem 1.2rem;
+}
+</style>
+<script>
+document.getElementById('toggle-today-reserved').onclick = function() {
+  var section = document.getElementById('today-reserved-section');
+  section.style.display = (section.style.display === 'none' || section.style.display === '') ? 'block' : 'none';
+};
+</script>
+{% endblock %} 

@@ -1,0 +1,5 @@
+Django>=3.2,<5.0
+pyrebase4
+xhtml2pdf
+django-storages
+google-cloud-storage 

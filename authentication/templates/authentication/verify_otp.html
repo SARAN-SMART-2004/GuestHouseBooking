@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Verify OTP | KSO Guesthouse{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 400px; margin: 3rem auto; background: rgba(255,255,255,0.7); border-radius: 18px; box-shadow: 0 4px 24px #7f53ac22; padding: 2.5rem 2rem;">
+    <h2 class="text-center underline mb-2">Verify OTP</h2>
+    <form method="post" autocomplete="off" id="otp-form">
+        {% csrf_token %}
+        <div style="margin-bottom: 1.5rem;">
+            <label for="otp" style="font-weight:600;">OTP</label><br>
+            <input type="text" id="otp" name="otp" required style="width:100%;padding:0.7rem 1rem;margin-top:0.5rem;border-radius:8px;border:1.5px solid #7f53ac33;font-size:1rem;">
+        </div>
+        <button type="submit" style="width:100%;background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;font-weight:700;padding:0.9rem 0;border:none;border-radius:8px;font-size:1.1rem;box-shadow:0 2px 8px #7f53ac22;cursor:pointer;transition:background 0.2s;">Verify</button>
+    </form>
+    {% if messages %}
+      <ul style="margin-top:1.5rem;">
+        {% for message in messages %}
+          <li style="color:#d7263d;font-weight:600;">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+</div>
+<div id="loading-overlay" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(255,255,255,0.7);z-index:9999;align-items:center;justify-content:center;">
+    <div class="loader"></div>
+</div>
+<style>
+.loader {
+  border: 8px solid #e0c3fc;
+  border-top: 8px solid #7f53ac;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+<script>
+document.getElementById('otp-form').addEventListener('submit', function() {
+    document.getElementById('loading-overlay').style.display = 'flex';
+});
+</script>
+{% endblock %} 

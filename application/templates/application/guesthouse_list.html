@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% block title %}Guesthouses | KSO Guesthouse{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 2.5rem auto;">
+    <h2 class="text-center underline mb-2">All Guesthouses</h2>
+    <div class="guesthouse-list-grid">
+        {% for gh in guesthouses %}
+        <div class="guesthouse-card">
+            {% if gh.image %}
+                <img src="{{ gh.image.url }}" alt="{{ gh.name }}" class="guesthouse-img" />
+            {% else %}
+                <div class="guesthouse-img guesthouse-img-placeholder"><i class="fa-solid fa-hotel"></i></div>
+            {% endif %}
+            <div class="guesthouse-card-content">
+                <div class="guesthouse-title">{{ gh.name }}</div>
+                <div class="guesthouse-address"><i class="fa-solid fa-location-dot"></i> {{ gh.address }}</div>
+            </div>
+            {% if user.is_staff %}
+            <a href="{% url 'edit_guesthouse_form' gh.id %}" class="edit-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></a>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-center">No guesthouses found.</div>
+        {% endfor %}
+    </div>
+</div>
+<style>
+.guesthouse-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+.guesthouse-card {
+    background: linear-gradient(135deg, #7f53ac 0%, #647dee 100%);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(127, 83, 172, 0.18);
+    color: #fff;
+    padding: 1.2rem 1.2rem 1.5rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 260px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+.guesthouse-card:hover {
+    transform: scale(1.04) translateY(-4px);
+    box-shadow: 0 16px 48px 0 rgba(127, 83, 172, 0.25);
+}
+.guesthouse-img {
+    width: 100%;
+    max-width: 220px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    background: #fff;
+}
+.guesthouse-img-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f0fa;
+    color: #7f53ac;
+    font-size: 2.5rem;
+    height: 120px;
+    width: 100%;
+    max-width: 220px;
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+.guesthouse-card-content {
+    width: 100%;
+    text-align: center;
+}
+.guesthouse-title {
+    font-size: 1.18rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.guesthouse-address {
+    font-size: 1rem;
+    color: #ffe53b;
+    opacity: 0.95;
+}
+.edit-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: linear-gradient(90deg,#7f53ac,#647dee);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 0.8rem;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.18s;
+    box-shadow: 0 2px 8px #7f53ac22;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    z-index: 2;
+}
+.edit-btn:hover {
+    background: linear-gradient(90deg,#647dee,#7f53ac);
+    color: #ffe53b;
+    transform: scale(1.08);
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,486 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>KSO Guesthouse Booking Software</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <style>
+    /* Reset and base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f8fafc 0%, #e0c3fc 100%);
+      color: #232946;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.5s;
+    }
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+    /* Utility classes */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+      width: 100%;
+    }
+    .text-center {
+      text-align: center;
+    }
+    .mb-2 {
+      margin-bottom: 2rem;
+    }
+    .underline {
+      border-bottom: 3px solid #7f53ac;
+      display: inline-block;
+      padding-bottom: 0.25rem;
+      color: #7f53ac;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      font-size: 1.5rem;
+      background: linear-gradient(90deg, #7f53ac, #647dee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    /* Navbar */
+    nav {
+      background: linear-gradient(90deg, #7f53ac 0%, #647dee 100%);
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2.5rem;
+      box-shadow: 0 2px 16px rgba(100, 125, 222, 0.18);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      font-weight: 600;
+      font-size: 1.05rem;
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+    }
+    nav .logo {
+      font-weight: 900;
+      font-size: 1.3rem;
+      letter-spacing: 1.5px;
+      line-height: 1.2;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+    }
+    nav .logo i {
+      font-size: 1.5rem;
+      color: #ffe53b;
+      filter: drop-shadow(0 2px 4px #7f53ac44);
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 2.2rem;
+      margin: 0;
+      padding: 0;
+      position: relative;
+    }
+    nav ul li {
+      cursor: pointer;
+      transition: color 0.3s, transform 0.2s;
+      padding: 0.2rem 0.7rem;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      position: relative;
+    }
+    nav ul li:hover {
+      color: #ffe53b;
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-2px) scale(1.07);
+      font-weight: 800;
+    }
+    /* Dropdown styles */
+    .dropdown {
+      position: relative;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 2.2rem;
+      left: 0;
+      background: rgba(34, 49, 70, 0.97);
+      min-width: 200px;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 8px 24px #23294644;
+      z-index: 200;
+      flex-direction: column;
+      padding: 0.5rem 0;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      animation: dropdownFade 0.25s;
+    }
+    .dropdown:hover .dropdown-menu,
+    .dropdown:focus-within .dropdown-menu {
+      display: flex;
+    }
+    .dropdown-menu li {
+      color: #fff;
+      padding: 0.7rem 1.5rem;
+      white-space: nowrap;
+      transition: background 0.2s, color 0.2s;
+      border: none;
+      border-radius: 0;
+      font-size: 1.05rem;
+      font-family: 'Montserrat', sans-serif;
+    }
+    .dropdown-menu li:hover {
+      background: #647dee;
+      color: #ffe53b;
+      font-weight: 800;
+    }
+    @keyframes dropdownFade {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Guesthouse grid */
+    .guesthouse-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2.5rem;
+      justify-items: center;
+      padding-bottom: 3rem;
+      flex-grow: 1;
+      margin-top: 2rem;
+    }
+    /* Guesthouse card */
+    .card {
+      background: rgba(255, 255, 255, 0.25);
+      border-radius: 22px;
+      box-shadow:
+        0 8px 32px 0 rgba(127, 83, 172, 0.18),
+        0 0 15px 0 rgba(100, 125, 222, 0.10);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1.5px solid rgba(127, 83, 172, 0.18);
+      overflow: hidden;
+      width: 100%;
+      max-width: 320px;
+      cursor: pointer;
+      transition: transform 0.4s, box-shadow 0.4s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #232946;
+      text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+      position: relative;
+    }
+    .card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(120deg, #ffe53b33 0%, #647dee22 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    .card:hover {
+      transform: scale(1.08) translateY(-6px);
+      box-shadow:
+        0 16px 48px 0 rgba(127, 83, 172, 0.25),
+        0 0 30px 0 rgba(100, 125, 222, 0.18);
+      z-index: 10;
+    }
+    .card img {
+      width: 100%;
+      height: 170px;
+      object-fit: cover;
+      border-top-left-radius: 22px;
+      border-top-right-radius: 22px;
+      display: block;
+      transition: transform 0.4s;
+      box-shadow: 0 2px 12px #7f53ac22;
+      z-index: 2;
+      position: relative;
+    }
+    .card:hover img {
+      transform: scale(1.10);
+    }
+    .card-info {
+      padding: 1.2rem 1.5rem 1.7rem;
+      text-align: center;
+      width: 100%;
+      z-index: 2;
+      position: relative;
+    }
+    .card-title {
+      font-weight: 900;
+      font-size: 1.35rem;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+      text-shadow: 0 1px 3px #7f53ac33;
+      color: #7f53ac;
+      letter-spacing: 1.2px;
+    }
+    .card-subtitle {
+      font-size: 1rem;
+      color: #232946;
+      margin: 0.2rem 0;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    /* Floating Action Button */
+    .fab {
+      position: fixed;
+      bottom: 2.2rem;
+      right: 2.2rem;
+      background: linear-gradient(135deg, #ffe53b 0%, #fd3838 100%);
+      color: #232946;
+      border: none;
+      border-radius: 50%;
+      width: 62px;
+      height: 62px;
+      box-shadow: 0 6px 24px #7f53ac44;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      cursor: pointer;
+      z-index: 200;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .fab:hover {
+      background: linear-gradient(135deg, #fd3838 0%, #ffe53b 100%);
+      transform: scale(1.08);
+    }
+    .fab:focus {
+      outline: 3px solid #647dee;
+    }
+    /* Footer */
+    footer {
+      background: linear-gradient(90deg, #7f53ac 0%, #647dee 100%);
+      color: white;
+      text-align: center;
+      padding: 1.2rem 0 1rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+      box-shadow: 0 -2px 12px #7f53ac22;
+      margin-top: auto;
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+    }
+    .footer-content {
+      max-width: 1100px;
+      margin: 0 auto;
+      letter-spacing: 0.7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+    }
+    .footer-content i {
+      color: #ffe53b;
+      font-size: 1.2rem;
+    }
+    /* Responsive */
+    @media (max-width: 700px) {
+      nav {
+        flex-direction: column;
+        padding: 1rem 1rem;
+        gap: 0.7rem;
+      }
+      nav ul {
+        gap: 1.2rem;
+      }
+      .container {
+        padding: 0 0.5rem;
+      }
+      .guesthouse-grid {
+        gap: 1.2rem;
+      }
+      .fab {
+        right: 1rem;
+        bottom: 1rem;
+      }
+    }
+    @media (max-width: 500px) {
+      .card {
+        max-width: 98vw;
+      }
+      .footer-content {
+        font-size: 0.9rem;
+      }
+    }
+    @media (max-width: 900px) {
+      nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem 1rem;
+      }
+      nav .logo {
+        margin-bottom: 0.7rem;
+      }
+      nav ul {
+        flex-direction: column;
+        gap: 0.7rem;
+        width: 100%;
+        display: none;
+        background: linear-gradient(90deg, #7f53ac 0%, #647dee 100%);
+        border-radius: 0 0 18px 18px;
+        box-shadow: 0 2px 16px rgba(100, 125, 222, 0.18);
+        position: static;
+      }
+      nav ul.show {
+        display: flex;
+      }
+      nav ul li {
+        width: 100%;
+        justify-content: flex-start;
+      }
+      .nav-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: #ffe53b;
+        font-size: 2rem;
+        cursor: pointer;
+        margin-left: auto;
+      }
+    }
+    @media (min-width: 901px) {
+      .nav-toggle {
+        display: none;
+      }
+    }
+    nav .dropdown.open > .dropdown-menu {
+      display: flex !important;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="logo"><i class="fa-solid fa-hotel"></i> KSO GUESTHOUSE BOOKING</div>
+    <button class="nav-toggle" aria-label="Toggle navigation"><i class="fa fa-bars"></i></button>
+    <ul>
+      <li><i class="fa-solid fa-house"></i> Home</li>
+      <li class="dropdown"><i class="fa-solid fa-bed"></i> Guesthouse
+        <ul class="dropdown-menu">
+          <li>EVERSHED</li>
+          <li>MICHIE SMITH</li>
+          <li>I &amp; M</li>
+          <li>EVERSHED ANNEXE</li>
+          <li>VAINU BAPPU</li>
+        </ul>
+      </li>
+      <li><i class="fa-solid fa-chart-line"></i> Report</li>
+      <li><i class="fa-solid fa-eye"></i> View</li>
+      <li><i class="fa-solid fa-download"></i> Download</li>
+      <li><i class="fa-solid fa-right-from-bracket"></i> Logout</li>
+    </ul>
+  </nav>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Hamburger menu toggle
+      const navToggle = document.querySelector('.nav-toggle');
+      const navUl = document.querySelector('nav ul');
+      navToggle.addEventListener('click', function(e) {
+        navUl.classList.toggle('show');
+      });
+      // Close nav on link click (mobile)
+      navUl.querySelectorAll('a,li').forEach(function(link) {
+        link.addEventListener('click', function() {
+          if (window.innerWidth <= 900) navUl.classList.remove('show');
+        });
+      });
+      // Dropdown click-to-open (desktop & mobile)
+      document.querySelectorAll('nav .dropdown').forEach(function(drop) {
+        drop.addEventListener('click', function(e) {
+          if (e.target === drop || e.target.closest('.dropdown') === drop) {
+            e.stopPropagation();
+            drop.classList.toggle('open');
+            document.querySelectorAll('nav .dropdown').forEach(function(other) {
+              if (other !== drop) other.classList.remove('open');
+            });
+          }
+        });
+      });
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function(e) {
+        document.querySelectorAll('nav .dropdown.open').forEach(function(drop) {
+          if (!drop.contains(e.target)) drop.classList.remove('open');
+        });
+      });
+      // Keyboard accessibility: open on focus, close on blur
+      document.querySelectorAll('nav .dropdown').forEach(function(drop) {
+        drop.addEventListener('focusin', function() {
+          drop.classList.add('open');
+        });
+        drop.addEventListener('focusout', function() {
+          drop.classList.remove('open');
+        });
+      });
+    });
+  </script>
+  <main class="container">
+    <h2 class="underline text-center mb-2">GUESTHOUSES</h2>
+    <div class="guesthouse-grid">
+      <div class="card" tabindex="0" role="button" aria-label="Evershed guesthouse">
+        <img src="{% static 'Evershed.jpg' %}" alt="Evershed guesthouse" />
+        <div class="card-info">
+          <p class="card-title">EVERSHED</p>
+          <p class="card-subtitle"><i class="fa-solid fa-location-dot"></i> Location: Location1</p>
+          <p class="card-subtitle"><i class="fa-solid fa-door-open"></i> Rooms: 4</p>
+        </div>
+      </div>
+      <div class="card" tabindex="0" role="button" aria-label="Mitchie Smith guesthouse">
+        <img src="{% static 'MitchiSmith.jpg' %}" alt="Mitchie Smith guesthouse" />
+        <div class="card-info">
+          <p class="card-title">MITCHIE SMITH</p>
+          <p class="card-subtitle"><i class="fa-solid fa-location-dot"></i> Location: Location2</p>
+          <p class="card-subtitle"><i class="fa-solid fa-door-open"></i> Rooms: 11</p>
+        </div>
+      </div>
+      <div class="card" tabindex="0" role="button" aria-label="I&M guesthouse">
+        <img src="{% static 'I&M.jpg' %}" alt="I&M guesthouse" />
+        <div class="card-info">
+          <p class="card-title">I&amp;M</p>
+          <p class="card-subtitle"><i class="fa-solid fa-location-dot"></i> Location: Location3</p>
+          <p class="card-subtitle"><i class="fa-solid fa-door-open"></i> Rooms: 12 rooms, 2 suite</p>
+        </div>
+      </div>
+      <div class="card" tabindex="0" role="button" aria-label="Evershed Annexe guesthouse">
+        <img src="{% static 'EvershedAnnexe.jpg' %}" alt="Evershed Annexe guesthouse" />
+        <div class="card-info">
+          <p class="card-title">EVERSHED ANNEXE</p>
+          <p class="card-subtitle"><i class="fa-solid fa-location-dot"></i> Location: Location4</p>
+          <p class="card-subtitle"><i class="fa-solid fa-door-open"></i> Rooms: 4</p>
+        </div>
+      </div>
+      <div class="card" tabindex="0" role="button" aria-label="Vainu Bappu guesthouse">
+        <img src="{% static 'VainuBappu.jpg' %}" alt="Vainu Bappu guesthouse" />
+        <div class="card-info">
+          <p class="card-title">VAINU BAPPU</p>
+          <p class="card-subtitle"><i class="fa-solid fa-location-dot"></i> Location: Location5</p>
+          <p class="card-subtitle"><i class="fa-solid fa-door-open"></i> Rooms: 10</p>
+        </div>
+      </div>
+    </div>
+  </main>
+  <button class="fab" title="Book Now" aria-label="Book Now"><i class="fa-solid fa-calendar-plus"></i></button>
+  <footer>
+    <div class="footer-content"><i class="fa-solid fa-hotel"></i> © 2024 KSO Guest House Booking. All rights reserved.</div>
+  </footer>
+</body>
+</html>

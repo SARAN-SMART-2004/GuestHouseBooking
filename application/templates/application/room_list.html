@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}Rooms | KSO Guesthouse{% endblock %}
+{% block content %}
+<div class="container" style="max-width: 900px; margin: 2.5rem auto;">
+    <h2 class="text-center underline mb-2">All Rooms</h2>
+    <form method="get" class="filter-form">
+        <select name="guesthouse" class="filter-select">
+            <option value="">All Guesthouses</option>
+            {% for gh in guesthouses %}
+                <option value="{{ gh.id }}" {% if selected_guesthouse == gh.id|stringformat:'s' %}selected{% endif %}>{{ gh.name }}</option>
+            {% endfor %}
+        </select>
+        <select name="room_type" class="filter-select">
+            <option value="">All Room Types</option>
+            {% for rt in room_types %}
+                <option value="{{ rt }}" {% if selected_room_type == rt %}selected{% endif %}>{{ rt }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" name="search" class="filter-input" placeholder="Search room number or guesthouse..." value="{{ search|default:'' }}" />
+        <button type="submit" class="filter-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    </form>
+    <div class="room-list-grid">
+        {% for room in rooms %}
+        <div class="room-card">
+            <div class="room-card-header">
+                <i class="fa-solid fa-bed"></i>
+                <span class="room-number">Room {{ room.room_number }}</span>
+                {% if user.is_staff %}
+                <a href="{% url 'edit_room_form' room.id %}" class="edit-btn" title="Edit"><i class="fa-solid fa-pen-to-square"></i></a>
+                {% endif %}
+            </div>
+            <div class="room-card-content">
+                <div class="room-type"><i class="fa-solid fa-door-closed"></i> {{ room.room_type }}</div>
+                <div class="room-guesthouse"><i class="fa-solid fa-hotel"></i> {{ room.guest_house.name }}</div>
+                <div class="room-beds"><i class="fa-solid fa-users"></i> Beds: {{ room.number_of_beds }}</div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-center">No rooms found.</div>
+        {% endfor %}
+    </div>
+</div>
+<style>
+.room-list-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+.room-card {
+    background: linear-gradient(135deg, #7f53ac 0%, #647dee 100%);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(127, 83, 172, 0.18);
+    color: #fff;
+    padding: 1.2rem 1.2rem 1.5rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-height: 180px;
+    transition: transform 0.2s, box-shadow 0.2s;
+    position: relative;
+}
+.room-card:hover {
+    transform: scale(1.04) translateY(-4px);
+    box-shadow: 0 16px 48px 0 rgba(127, 83, 172, 0.25);
+}
+.room-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.7rem;
+    width: 100%;
+    position: relative;
+}
+.room-card-header i {
+    font-size: 1.5rem;
+    color: #ffe53b;
+}
+.room-number {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+.room-card-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+.room-type, .room-guesthouse, .room-beds {
+    font-size: 1rem;
+    opacity: 0.97;
+}
+.room-type i, .room-guesthouse i, .room-beds i {
+    margin-right: 0.5rem;
+    color: #ffe53b;
+}
+.edit-btn {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+    background: linear-gradient(90deg,#7f53ac,#647dee);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 0.7rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: background 0.18s, transform 0.18s;
+    box-shadow: 0 2px 8px #7f53ac22;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    z-index: 2;
+}
+.edit-btn:hover {
+    background: linear-gradient(90deg,#647dee,#7f53ac);
+    color: #ffe53b;
+    transform: scale(1.08);
+}
+.filter-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+.filter-select, .filter-input {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1.5px solid #7f53ac33;
+    font-size: 1rem;
+    outline: none;
+    min-width: 160px;
+    background: #f3f0fa;
+    color: #232946;
+    transition: border 0.2s;
+}
+.filter-select:focus, .filter-input:focus {
+    border: 1.5px solid #7f53ac;
+    box-shadow: 0 0 0 2px #7f53ac22;
+}
+.filter-btn {
+    background: linear-gradient(90deg,#7f53ac,#647dee);
+    color: #fff;
+    font-weight: 700;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.05rem;
+    box-shadow: 0 2px 8px #7f53ac22;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.18s;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.filter-btn:hover {
+    background: linear-gradient(90deg,#647dee,#7f53ac);
+    transform: scale(1.04);
+}
+</style>
+{% endblock %} 

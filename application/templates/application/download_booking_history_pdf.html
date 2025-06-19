@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Booking History PDF</title>
+    <style>
+        body { font-family: Arial, sans-serif; font-size: 13px; }
+        h2 { text-align: center; margin-bottom: 1.5rem; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1.5rem; }
+        th, td { border: 1px solid #888; padding: 8px 10px; text-align: center; }
+        th { background: #7f53ac; color: #fff; }
+        tr:nth-child(even) { background: #f3eaff; }
+    </style>
+</head>
+<body>
+    <h2>Room Booking History<br>
+        {% if from_date and to_date %}
+        <span style="font-size:1rem;font-weight:normal;">From {{ from_date }} to {{ to_date }}</span>
+        {% endif %}
+    </h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Room</th>
+                <th>Guest House</th>
+                <th>Booked By</th>
+                <th>Check-in</th>
+                <th>Check-out</th>
+                <th>Status</th>
+                <th>Total Price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr>
+                <td>{{ booking.room.room_number }} ({{ booking.room.room_type }})</td>
+                <td>{{ booking.room.guest_house.name }}</td>
+                <td>{{ booking.user.username }}</td>
+                <td>{{ booking.check_in_date }}</td>
+                <td>{{ booking.check_out_date }}</td>
+                <td>{{ booking.status }}</td>
+                <td>${{ booking.total_price }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="7">No bookings found for this period.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html> 

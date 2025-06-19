@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}KSO Guesthouse Booking Software{% endblock %}
+
+{% block content %}
+<main class="container">
+  <h2 class="underline text-center mb-2">GUESTHOUSES</h2>
+  <div class="guesthouse-grid">
+    {% for guest_house in guest_houses %}
+      <a href="{% url 'guest_house_detail' guest_house.id %}" class="card" tabindex="0" role="button" aria-label="{{ guest_house.name }} guesthouse" style="text-decoration:none; color:inherit;">
+        <img src="{{ guest_house.image.url }}" alt="{{ guest_house.name }} guesthouse" />
+        <div class="card-info">
+          <p class="card-title">{{ guest_house.name }}</p>
+          <p class="card-subtitle"><i class="fa-solid fa-location-dot"></i> {{ guest_house.address|default:'No address' }}</p>
+          <p class="card-subtitle"><i class="fa-solid fa-door-open"></i> Rooms: {{ guest_house.room_count }}</p>
+          <p class="card-subtitle"><i class="fa-solid fa-bed"></i> Available: {{ guest_house.available_rooms_count }}</p>
+          <p class="card-subtitle"><i class="fa-solid fa-calendar-check"></i> Booked: {{ guest_house.booked_rooms_count }}</p>
+        </div>
+      </a>
+    {% empty %}
+      <div style="grid-column: 1/-1; text-align:center; color:#888; font-size:1.2rem;">No guest houses available.</div>
+    {% endfor %}
+  </div>
+</main>
+<button class="fab" title="Book Now" aria-label="Book Now"><i class="fa-solid fa-calendar-plus"></i></button>
+{% endblock %}
+
+{% block nav_extra %}
+<script>
+// Optionally, add JS for nav or FAB if needed
+</script>
+{% endblock %} 

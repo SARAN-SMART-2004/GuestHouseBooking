@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% block title %}Download Booking History | KSO Guesthouse{% endblock %}
+{% block content %}
+<style>
+.table th, .table td {
+  padding: 0.85rem 1.2rem;
+  text-align: center;
+}
+.table th {
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-size: 1.08rem;
+}
+.table tr {
+  border-bottom: 1.5px solid #e0c3fc;
+}
+.table-responsive {
+  margin-top: 1rem;
+  width: 100%;
+  overflow-x: auto;
+}
+@media (max-width: 900px) {
+  .container[style] {
+    max-width: 98vw !important;
+    padding: 0 0.5rem;
+  }
+  .table th, .table td {
+    font-size: 0.98rem;
+    padding: 0.5rem 0.5rem;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .table {
+    min-width: 600px;
+  }
+  .mb-2 {
+    margin-bottom: 1.2rem;
+  }
+}
+@media (max-width: 600px) {
+  .container[style] {
+    padding: 0 0.2rem;
+  }
+  .table th, .table td {
+    font-size: 0.92rem;
+    padding: 0.35rem 0.2rem;
+  }
+  .table {
+    min-width: 420px;
+  }
+  .mb-2 {
+    margin-bottom: 0.7rem;
+  }
+}
+</style>
+
+<div class="container" style="max-width:900px;margin:2.5rem auto;">
+  <h2 class="underline text-center mb-2">Download Booking History</h2>
+  <form method="get" style="display:flex;gap:1.5rem;justify-content:center;align-items:end;margin-bottom:2rem;flex-wrap:wrap;">
+    <div>
+      <label for="from_date" style="font-weight:600;">From Date:</label><br>
+      <input type="date" name="from_date" id="from_date" value="{{ from_date }}" required style="padding:0.5rem 1rem;border-radius:8px;border:1.5px solid #7f53ac33;font-size:1rem;">
+    </div>
+    <div>
+      <label for="to_date" style="font-weight:600;">To Date:</label><br>
+      <input type="date" name="to_date" id="to_date" value="{{ to_date }}" required style="padding:0.5rem 1rem;border-radius:8px;border:1.5px solid #7f53ac33;font-size:1rem;">
+    </div>
+    <button type="submit" style="background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;font-weight:700;padding:0.7rem 2rem;border:none;border-radius:8px;font-size:1.1rem;box-shadow:0 2px 8px #7f53ac22;cursor:pointer;transition:background 0.2s;">Show History</button>
+  </form>
+  {% if bookings %}
+  <div style="background:rgba(255,255,255,0.95);border-radius:18px;box-shadow:0 2px 12px #7f53ac11;padding:2.5rem 1.5rem;">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:1rem;">
+      <form method="get" action="{% url 'download_booking_history_pdf' %}">
+        <input type="hidden" name="from_date" value="{{ from_date }}">
+        <input type="hidden" name="to_date" value="{{ to_date }}">
+        <button type="submit" style="background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;font-weight:700;padding:0.7rem 2rem;border:none;border-radius:8px;font-size:1.1rem;box-shadow:0 2px 8px #7f53ac22;cursor:pointer;transition:background 0.2s;">
+          <i class="fa-solid fa-file-pdf"></i> Download as PDF
+        </button>
+      </form>
+    </div>
+    <div class="table-responsive">
+      <table class="table" style="width:100%;border-radius:12px;overflow:hidden;">
+        <thead style="background:linear-gradient(90deg,#7f53ac,#647dee);color:#fff;">
+          <tr>
+            <th>Room</th>
+            <th>Guest House</th>
+            <th>Booked By</th>
+            <th>Check-in</th>
+            <th>Check-out</th>
+            <th>Status</th>
+            <th>Total Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for booking in bookings %}
+          <tr style="background:rgba(240,240,255,0.7);">
+            <td>{{ booking.room.room_number }} ({{ booking.room.room_type }})</td>
+            <td>{{ booking.room.guest_house.name }}</td>
+            <td>{{ booking.user.username }}</td>
+            <td>{{ booking.check_in_date }}</td>
+            <td>{{ booking.check_out_date }}</td>
+            <td>{{ booking.status }}</td>
+            <td>${{ booking.total_price }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% elif from_date and to_date %}
+    <div style="text-align:center;color:#888;">No bookings found for this period.</div>
+  {% endif %}
+</div>
+{% endblock %} 
